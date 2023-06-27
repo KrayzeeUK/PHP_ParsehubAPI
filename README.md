@@ -22,7 +22,7 @@ composer require krayzeeuk/parsehubapi
 
 	use KrayZeeUK\API\ParsehubAPI
 	
-	$parsehubProject = new ParsehubAPI( "your APU Key" );
+	$parsehubProject = new ParsehubAPI( "your API Key" );
 
 	$projectData =  $parsehubProject->getProject( "Your Project Key" );
 
