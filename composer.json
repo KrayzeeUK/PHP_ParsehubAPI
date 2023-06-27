@@ -1,0 +1,26 @@
+{
+  "name": "krayzeeuk/parsehubapi",
+  "description" : "PHP API wrapper class for Parsehub.",
+  "type" : "library",
+  "keywords" : [
+    "API",
+    "Parsehub"
+  ],
+  "license" : "GPL-3.0-only",
+  "authors" : [
+    {
+      "name" : "Martin Roberts ",
+      "email" : "krayzeeuk@gmail.com"
+    }
+  ],
+  "require" : {
+    "php" : ">=7.2",
+    "ext-json" : "*",
+    "ext-zlib" : "*"
+  },
+  "autoload" : {
+    "classmap" : [
+      "src/"
+    ]
+  }
+}
