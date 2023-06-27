@@ -1,5 +1,5 @@
-[![Total Downloads](https://img.shields.io/packagist/dt/krayzeeuk/php_parsehubapi.svg)](https://packagist.org/packages/krayzeeuk/php_parsehubapi)
-[![Latest Stable Version](https://img.shields.io/packagist/v/krayzeeuk/php_parsehubapi.svg)](https://packagist.org/packages/krayzeeuk/php_parsehubapi)
+[![Total Downloads](https://img.shields.io/packagist/dt/krayzeeuk/parsehubapi.svg)](https://packagist.org/packages/krayzeeuk/parsehubapi)
+[![Latest Stable Version](https://img.shields.io/packagist/v/krayzeeuk/parsehubapi.svg)](https://packagist.org/packages/krayzeeuk/parsehubapi)
 
 # PHP_ParsehubAPI
 PHP_ParsehubAPI is a PHP class to allow for easy calling of Parsehub API Commands.
