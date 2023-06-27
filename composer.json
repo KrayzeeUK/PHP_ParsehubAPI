@@ -1,11 +1,12 @@
 {
-  "name": "krayzeeuk/parsehubapi",
+  "name" : "krayzeeuk/parsehubapi",
   "description" : "PHP API wrapper class for Parsehub.",
   "type" : "library",
   "keywords" : [
     "API",
     "Parsehub"
   ],
+  "homepage" : "https://github.com/KrayzeeUK/PHP_ParsehubAPI",
   "license" : "GPL-3.0-only",
   "authors" : [
     {
