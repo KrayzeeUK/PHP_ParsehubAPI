@@ -7,6 +7,53 @@
 	//declare(strict_types=1);
 
 	/**
+	 * Parsehub API Class
+	 *
+	 * The ParseHub API is designed around REST. It aims to have predictable URLs and uses HTTP verbs where possible.
+	 *
+	 * There are two primary types of objects that the ParseHub API operates with.
+	 *
+	 * Project
+	 *
+	 * This object represents a project that was created using the ParseHub client. It has the following properties:
+	 * --------------------------------------------------------------------------------------------------------------
+	 * Property        Description
+	 * --------------------------------------------------------------------------------------------------------------
+	 * token           A globally unique id representing this project.
+	 * title           The title give by the user when creating this project.
+	 * templates_json  The JSON-stringified representation of all the instructions for running this project.
+	 *                 This representation is not yet documented, but will eventually allow developers to
+	 *                 create plugins for ParseHub.
+	 * main_template   The name of the template with which ParseHub should start executing the project.
+	 * main_site       The default URL at which ParseHub should start running the project.
+	 * options_json    An object containing several advanced options for the project.
+	 * last_run        The run object of the most recently started run (ordered by start_time) for the project.
+	 * last_ready_run  The run object of the most recent ready run (ordered by start_time) for the project.
+	 *                 A ready run is one whose data_ready attribute is truthy. The last_run and last_ready_run
+	 *                 for a project may be the same.
+	 *
+	 * Run
+	 *
+	 * This object represents an instance of a project that was run at a given time with a given set of parameters.
+	 * It has the following properties:
+	 * --------------------------------------------------------------------------------------------------------------
+	 * Property        Description
+	 * --------------------------------------------------------------------------------------------------------------
+	 * project_token   A globally unique id representing the project that this run belongs to.
+	 * run_token       A globally unique id representing this run.
+	 * status          The status of the run. It can be one of
+	 *                 "initialized", "queued", "running", "cancelled", "complete", or "error".
+	 * data_ready      Whether the data for this run is ready to download. If the status is "complete",
+	 *                 this will always be truthy. If the status is "cancelled" or "error",
+	 *                 then this may be truthy or falsy, depending on whether any data is available.
+	 * start_time      The time that this run was started at, in UTC +0000.
+	 * end_time        The time that this run was stopped. This field will be null if the run is either
+	 *                 "initialized" or "running". Time is in UTC +0000.
+	 * pages           The number of pages that have been traversed by this run so far.
+	 * md5sum          The md5sum of the results. This can be used to check if any results data has changed between two runs.
+	 * start_url       The url that this run was started on.
+	 * start_template  The template that this run was started with.
+	 * start_value     The starting value of the global scope for this run.
 	 *
 	 */
 	class ParsehubAPI {
@@ -398,11 +445,22 @@
 				stream_context_create( $options )
 			); // Get API Response
 
+			$headers = $this->parseHeaders( $http_response_header ); // Get headers
+
 			if ( $apiReturn === FALSE ) {
-				throw new Exception( "Failed to retrieve results from API" );
+				switch ( $headers["response_code"] ) {
+					case 400:
+						throw new Exception( "Bad Request.  Unable to retrieve data from Parsehub" );
+					case 401:
+						throw new Exception( "Unauthorised access.  Please check your API key and try again." );
+					case 403:
+						throw new Exception( "Forbidden. Check your API key or try again later." );
+					default:
+						throw new Exception( "Failed to retrieve results from Parsehub API" );
+				}
 			}
 
-			if ( in_array( "Content-Encoding: gzip", $http_response_header ) ) {
+			if ( isset( $headers["Content-Encoding"] ) and strpos( $headers["Content-Encoding"], "gzip" ) ) {
 				$apiReturn = gzdecode( $apiReturn ); // Contents are compressed so decompress them.
 			}
 
@@ -411,5 +469,37 @@
 			}
 
 			return array( "json" => $apiReturn ); // Return raw json
+		}
+
+		/**
+		 * Parse HTTP Headers into associative array
+		 *
+		 * @param array $headers Headers to Parse
+		 *
+		 * @return array
+		 */
+		function parseHeaders( array $headers ): array {
+
+			$newHeaders = array(); // Setup array for storing new headers
+
+			foreach ( $headers as $headerValue ) {
+
+				$headerPair = explode( ":", $headerValue, 2 ); // Split each header
+
+				if ( isset( $headerPair[1] ) ) {
+					$newHeaders[ trim( $headerPair[0] ) ] = trim( $headerPair[1] ); // Assign to array as associative
+				} else {
+					$newHeaders[] = $headerValue; // unable to split so assign back to array as indexed
+
+					preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $headerValue, $output ); // Search for response code
+
+					if ( isset( $output[1] ) ) {
+						// found response code and assign to array as associative
+						$newHeaders["response_code"] = intval( $output[1] );
+					}
+				}
+			}
+
+			return $newHeaders; // Return results
 		}
 	}
